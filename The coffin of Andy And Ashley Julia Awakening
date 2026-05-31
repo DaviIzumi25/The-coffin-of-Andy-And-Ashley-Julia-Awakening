@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="E-book interativo: The Coffin of Andy and Ashley: Julia's Awakening AU">
+  <title>📖 The Coffin of Andy and Ashley: Julia's Awakening AU</title>
+  <style>
+    :root {
+      --bg: #faf9f6;
+      --bg-card: #ffffff;
+      --text: #2c2c2c;
+      --text-muted: #668;
+      --accent: #8b4513;
+      --accent-light: #c9a66b;
+      --border: #e0e0e0;
+      --font-body: 'Georgia', 'Times New Roman', serif;
+      --font-ui: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      --font-size: 18px;
+      --line-height: 1.85;
+      --max-width: 720px;
+    }
+
+    [data-theme="dark"] {
+      --bg: #121212;
+      --bg-card: #1e1e1e;
+      --text: #e6e6e6;
+      --text-muted: #a0a0a0;
+      --accent: #d4a373;
+      --accent-light: #e9c46a;
+      --border: #333;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: var(--font-size);
+      line-height: var(--line-height);
+      transition: background 0.3s, color 0.3s;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Barra de Progresso */
+    #progress-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      background: var(--accent);
+      width: 0%;
+      z-index: 1000;
+      transition: width 0.15s ease;
+    }
+
+    /* Navegação */
+    nav {
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 0.8rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 999;
+      backdrop-filter: blur(8px);
+    }
+
+    .nav-controls { display: flex; gap: 0.5rem; }
+
+    button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: var(--font-ui);
+      font-size: 0.85rem;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    button:hover { opacity: 0.9; }
+    button:active { transform: scale(0.97); }
+
+    .toc-panel {
+      position: absolute;
+      top: 100%; right: 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      min-width: 240px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      display: none;
+      z-index: 998;
+    }
+    .toc-panel.active { display: block; }
+    .toc-panel a {
+      display: block;
+      padding: 0.6rem 0;
+      text-decoration: none;
+      color: var(--text);
+      font-family: var(--font-ui);
+      border-bottom: 1px dashed var(--border);
+      transition: color 0.2s;
+    }
+    .toc-panel a:last-child { border-bottom: none; }
+    .toc-panel a:hover { color: var(--accent); }
+
+    /* Layout Principal */
+    main {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    /* Capa / Título */
+    .cover {
+      text-align: center;
+      padding: 3rem 0 2rem;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 3rem;
+    }
+    .cover h1 {
+      font-size: 2.2rem;
+      margin-bottom: 0.5rem;
+      color: var(--accent);
+      line-height: 1.2;
+    }
+    .cover .subtitle {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      font-style: italic;
+    }
+
+    /* Capítulos */
+    .chapter {
+      margin-bottom: 4rem;
+      scroll-margin-top: 5rem;
+    }
+    .chapter h2 {
+      font-size: 1.8rem;
+      margin: 2.5rem 0 1.2rem;
+      color: var(--accent);
+      border-left: 4px solid var(--accent-light);
+      padding-left: 0.8rem;
+      line-height: 1.3;
+    }
+    .chapter p {
+      margin-bottom: 1.4rem;
+      text-align: justify;
+      hyphens: auto;
+      orphans: 3;
+      widows: 3;
+    }
+    .chapter p:first-of-type::first-letter {
+      font-size: 3.2em;
+      float: left;
+      line-height: 0.8;
+      margin-right: 0.1em;
+      margin-top: 0.1em;
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    /* Citação Bíblica */
+    .verse {
+      font-style: italic;
+      border-left: 3px solid var(--accent);
+      padding: 1rem 1.5rem;
+      margin: 2.5rem 0;
+      background: var(--bg-card);
+      border-radius: 0 8px 8px 0;
+      color: var(--text-muted);
+    }
+    .verse cite {
+      display: block;
+      margin-top: 0.8rem;
+      font-size: 0.95em;
+      font-weight: bold;
+      color: var(--accent);
+    }
+
+    /* Rodapé / Créditos */
+    footer {
+      text-align: center;
+      padding: 3rem 0;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      margin-top: 3rem;
+    }
+    footer .authorship {
+      background: var(--bg-card);
+      padding: 1.2rem;
+      border-radius: 8px;
+      margin-top: 1.5rem;
+      font-family: var(--font-ui);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    /* Responsivo */
+    @media (max-width: 640px) {
+      :root { --font-size: 16px; --max-width: 100%; }
+      .cover h1 { font-size: 1.7rem; }
+      main { padding: 1.5rem 1rem 3rem; }
+      .chapter h2 { font-size: 1.5rem; }
+    }
+
+    /* Animações Suaves */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .chapter { animation: fadeIn 0.6s ease-out; }
+  </style>
+</head>
+<body data-theme="light">
+
+  <div id="progress-bar"></div>
+
+  <nav>
+    <div style="font-weight: bold; color: var(--accent);">📖 Julia's Awakening</div>
+    <div class="nav-controls">
+      <button id="toc-btn">📑 Índice</button>
+      <button id="theme-btn">🌙 Modo</button>
+      <button id="font-btn">🔤 Aa</button>
+    </div>
+    <div class="toc-panel" id="toc">
+      <a href="#cover">Capa</a>
+      <a href="#cap1">Capítulo 1: O Ponto de Equilíbrio</a>
+      <a href="#cap2">Capítulo 2: O Peso dos Segredos</a>
+      <a href="#cap3">Capítulo 3: A Caçada Final</a>
+      <a href="#credits">Créditos & Autoria</a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="cover" id="cover">
+      <h1>🔍➕🔫📖 The Coffin of Andy and Ashley:<br>Julia's Awakening AU</h1>
+      <p class="subtitle">Uma narrativa original de redenção, fé e justiça silenciosa</p>
+    </section>
+
+    <article class="chapter" id="cap1">
+      <h2>📖 Capítulo 1: O Ponto de Equilíbrio</h2>
+      <p>O vento do fim de tarde no Parque Central arrastava folhas secas pelo concreto rachado. Julia estava sentada no banco mais afastado, sob a sombra de um salgueiro chorão. Suas mãos, escondidas pelos manguitos pretos, apertavam um caderno de notas contra o peito. A franja longa cobria o lado esquerdo do rosto, servindo como uma cortina contra o mundo exterior. Ela olhava para o chão, tentando regular a própria respiração. Fazia semanas que havia cortado os laços com Andrew, mas o eco da voz dele e o terror das ameaças de Ashley ainda pareciam impregnados em sua pele.</p>
+      <p>A poucos metros dali, sentado no banco — com — estava um rapaz. Ele vestia um moletom cinza folgado e calças jeans desgastadas. Seus olhos, profundos e atentos, fixavam-se em um pequeno tabuleiro de xadrez de bolso, mas sua mente registrava tudo ao redor.</p>
+      <p>Aquele era Ravian.</p>
+      <p>Diferente da maioria das pessoas, Ravian não via apenas uma garota tímida no banco. Ele notava os micro-movimentos: o tremor leve nos ombros de Julia, a forma como ela recolhia as pernas sempre que alguém passava perto e a cicatriz quase imperceptível que aparecia quando o manguito escorregava um milímetro. Mas ele era um cristão bereano. Ravian havia aprendido a não julgar pelas aparências, mas a examinar a realidade com lógica, paciência e, acima de tudo, compaixão profunda. Ele sentiu um aperto no coração. Aquela garota carregava um peso que não pertencia a alguém da idade dela.</p>
+      <p>Sem fazer barulho, ele caminhou até uma distância respeitável do banco dela.</p>
+      <p>— O vento vai rasgar a contracapa se você continuar apertando assim — disse Ravian. Sua voz era calma, linear, mas surpreendentemente calorosa.</p>
+      <p>Julia deu um sobressalto, os olhos amarelos arregalados de susto. Ela olhou para cima, encolhendo-se ainda mais.</p>
+      <p>— D-desculpe... — gaguejou ela automaticamente, a voz falhando.</p>
+      <p>— Não precisa pedir desculpas. Eu só estava observando a mecânica da sua postura — Ravian deu um meio sorriso, mantendo as mãos nos bolsos do moletom. Ele não deu nenhum passo à frente, respeitando o espaço dela. — Sou o Ravian. Você costuma ler aqui?</p>
+      <p>— Eu... eu só estava tentando pensar — Julia respondeu, a voz quase um sussurro. Ela notou que o olhar dele era inteligente, quase clínico, mas não havia a malícia que ela estava acostumada a ver nas pessoas do seu passado. Havia uma bondade genuína e silenciosa ali.</p>
+      <p>— Pensar é um exercício perigoso quando se está sozinha — comentou Ravian, olhando para o céu que começava a escurecer. — O sol está caindo rápido. Este parque muda de atmosfera depois das seis. Você mora perto?</p>
+      <p>— Algumas quadras — ela mentiu levemente, querendo parecer segura, embora morasse um pouco mais longe.</p>
+      <p>— Entendo. Tenha um bom caminho, ...?</p>
+      <p>— Julia. Meu nome é Julia.</p>
+      <p>— Tenha um bom caminho, Julia. Espero ver você e seu caderno inteiros aqui amanhã.</p>
+      <p>Ele fez um leve aceno com a cabeça e começou a caminhar na direção oposta, com sua postura levemente curvada, dando a ela o espaço que ela tanto precisava. Julia soltou o ar que nem percebeu que guardava. Pela primeira vez em meses, alguém havia falado com ela sem exigir nada em troca.</p>
+      <hr style="border:0; border-top:1px dashed var(--border); margin:2rem 0;">
+      <p>O crepúsculo desapareceu mais rápido do que Julia previu. A névoa da noite começou a cobrir as ruas secundárias do bairro. Para encurtar o caminho e evitar a avenida movimentada que a deixava ansiosa, Julia cometeu o erro de entrar no atalho comercial — uma ruela estreita flanqueada por paredes de tijolos pichadas e latas de lixo industriais.</p>
+      <p>O som de passos ecoou atrás dela. Dois homens, visivelmente embriagados e com segundas intenções estampadas nos rostos cínicos, saíram de uma sombra próxima a uma antiga fábrica têxtil.</p>
+      <p>— Olha só... o que uma garotinha tão bonita tá fazendo sozinha no escuro? — um deles disse, acelerando o passo.</p>
+      <p>O pânico paralisou Julia. Suas pernas fraquejaram. As memórias traumáticas de ser encurralada por Ashley e negligenciada por Andrew sabotaram sua reação de fuga. Ela recuou até que suas costas bateram contra a parede fria do beco.</p>
+      <p>— Por favor... fiquem longe... — ela implorou, as lágrimas cortando seus olhos.</p>
+      <p>O segundo homem estendeu a mão, segurando o braço de Julia com força, puxando-a para mais perto da escuridão profunda do beco.</p>
+      <p>— Não precisa gritar, boneca. Ninguém vai ouvir você aqui.</p>
+      <p>Antes que o homem pudesse fazer qualquer outra coisa, uma silhueta cortou a luz fraca do poste na entrada do beco. Passos rápidos, perfeitamente calculados, ecoaram no chão úmido.</p>
+      <p>— Solte-a. Agora. — A voz era a mesma do parque, mas o tom caloroso havia sumido. Era fria, precisa e cortante como gelo.</p>
+      <p>Ravian estava ali. Ele não havia ido embora; sua mente analítica havia calculado o trajeto de Julia e os riscos daquela área à noite, fazendo-o segui-la à distância por pura precaução.</p>
+      <p>— Some daqui, moleque, se não quiser apanhar também! — o primeiro homem rosnou, avançando contra Ravian.</p>
+      <p>Ravian não vacilou. Seus olhos registraram o movimento desajeitado do agressor pesado pelo álcool. Com a agilidade e o cálculo de um enxadrista, Ravian esquivou-se do soco previsível, usou o próprio impulso do homem contra ele e desferiu um golpe preciso com a palma da mão na lateral do pescoço do sujeito, seguido de uma rasteira limpa. O homem desabou no chão, arfando.</p>
+      <p>O segundo homem, que segurava Julia, arregalou os olhos. Vendo a eficiência fria do rapaz, ele soltou o braço dela brutalmente e deu dois passos para trás, puxando o companheiro caído pelo casaco.</p>
+      <p>— Cara louco... vamos cair fora daqui! — praguejou, arrastando o amigo em direção à saída oposta do beco.</p>
+      <p>O silêncio voltou a reinar no local, quebrado apenas pelos soluços violentos de Julia. Ela escorregou pela parede até sentar-se no chão, cobrindo o rosto com as mãos, tremendo incontrolavelmente. O trauma do quase abuso a havia transportado de volta para o inferno mental de onde tentava escapar.</p>
+      <p>Ravian não correu até ela. Ele sabia que um movimento brusco agora pareceria mais uma ameaça. Ele caminhou lentamente e sentou-se no chão do beco, a cerca de um metro de distância dela, cruzando as pernas.</p>
+      <p>— Eles já foram, Julia. Você está segura. Eu garanto — ele disse, com a voz mais doce e reconfortante do que nunca.</p>
+      <p>Julia continuou chorando por alguns minutos, o corpo sacudindo. Ravian permaneceu ali, imóvel, servindo como uma barreira física entre ela e o resto do mundo escuro. Ele não tentou tocá-la, respeitando o limite do corpo dela.</p>
+      <p>Aos poucos, a respiração de Julia começou a desacelerar. Ela afastou a franja e olhou para ele através das lágrimas. Vendo o respeito e a paciência infinita nos olhos de Ravian, ela sentiu, pela primeira vez na vida, um vislumbre de verdadeira proteção. Ela estendeu a mão trêmula em direção a ele.</p>
+      <p>Ravian olhou para a mão dela. Devagar, ele estendeu a sua, com a palma para cima, permitindo que ela iniciasse o contato. Julia segurou os dedos dele com força. A mão de Ravian era firme e quente.</p>
+      <p>— Obrigado... — ela sussurrou, a voz embargada.</p>
+      <p>— Minha fé me ensina que a justiça e o cuidado com o próximo não são opcionais, Julia. Eu não deixaria nada acontecer com você — ele respondeu, apertando a mão dela com uma pressão suave e constante, oferecendo o conforto físico que ela tanto precisava para se aterrar na realidade. — Vamos sair daqui. Eu te acompanho até a sua porta. E amanhã, se você quiser, o banco do parque ainda estará lá.</p>
+      <p>Julia assentiu, limpando o rosto. Pela primeira vez, o futuro não parecia tão assustador.</p>
+    </article>
+
+    <article class="chapter" id="cap2">
+      <h2>🔫 Capítulo 2: O Peso dos Segredos e a Engrenagem da Justiça 🔍</h2>
+      <p>O apartamento de Julia era pequeno, silencioso e carregado de uma atmosfera pesada. Assim que a porta foi trancada, o peso de toda a noite desabou sobre os ombros dela. O tremor nas mãos voltou com força total. Ravian mudou sua postura de alerta para um acolhimento absoluto. Com passos calmos, ele a conduziu até o sofá, sentando-se a uma distância segura, mas perto o suficiente para que ela sentisse sua presença.</p>
+      <p>— Respire, Julia. O ar daqui de dentro é seu, ninguém vai tirá-lo de você — disse Ravian, a voz suave e firme como uma âncora. — Você cruzou a porta. O perigo ficou do lado de fora.</p>
+      <p>Ele estendeu a mão lentamente. Julia, buscando desesperadamente um ponto de apoio na realidade, segurou os dedos dele. Ravian começou a massagear levemente o dorso da mão dela com o polegar, um toque puramente terapêutico e respeitoso, que aos poucos foi desacelerando os batimentos cardíacos da garota. Ele proferiu palavras de consolo, falando sobre como a vida dela tinha um valor imenso e que nenhuma escuridão daquele mundo tinha o direito de apagar a sua luz.</p>
+      <p>Quando a tempestade em sua mente finalmente se acalmou, o silêncio que se seguiu trouxe uma necessidade profunda de desabafo. Olhando para as próprias cicatrizes nos manguitos, Julia começou a falar sobre o seu passado. Ela contou sobre o relacionamento disfuncional com Andrew, sobre como ele a usava como um escudo emocional e, com a voz embargada, detalhou o terror psicológico e as ameaças de morte que sofria de Ashley. Por fim, com lágrimas silenciosas correndo pelo rosto, ela falou sobre Nina — sua melhor amiga de infância, cuja tragédia ainda assombrava sua alma.</p>
+      <p>Ravian ouviu cada palavra sem interromper. Seus olhos, no entanto, faiscaram com uma intensidade analítica profunda. Como um legítimo cristão bereano, ele abominava a injustiça e a opressão. Enquanto consolava Julia com um abraço terno e protetor — permitindo que ela chorasse em seu ombro —, uma engrenagem começou a girar em sua mente brilhante. Ele não podia deixar aqueles monstros impunes.</p>
+      <p>Naquela mesma noite, após deixar Julia segura e adormecida, Ravian voltou para seu próprio quarto. Ele dobrou os joelhos no chão frio e orou. Não pediu por vingança, mas pediu a Deus sabedoria, discernimento e a capacidade de ser um instrumento de justiça silenciosa. Ele sabia que combater a loucura dos irmãos Graves exigiria mais do que inteligência comum; exigiria uma precisão cirúrgica.</p>
+      <p>A partir dali, Ravian iniciou uma investigação totalmente anônima e discreta. Usando câmeras espiãs camufladas, microfones sem fio que transmitiam áudio em frequências de rádio de longo alcance e sua capacidade dedutiva ultra-avançada, ele começou a achar, de forma discreta, as pegadas digitais de Andrew e Ashley. Vasculhou fóruns locais, antigos registros escolares e relatórios telefônicos. Graças à sabedoria que pediu em oração, ele conseguiu cruzar dados que a polícia comum havia negligenciado: relatórios médicos ocultos, contradições nos depoimentos sobre o desaparecimento de Nina e pequenos vestígios de atividades criminosas cometidas pelos irmãos durante o período de isolamento. Ravian encontrou provas comprometedoras o suficiente para destruí-los judicialmente. Ele arquivou tudo e guardou em um lugar altamente protegido, esperando o momento exato para agir.</p>
+      <p>Enquanto movia as peças do tabuleiro no escuro, Ravian dedicava seus dias a cuidar de Julia. Ele se tornou o seu guardião e seu maior suporte emocional. No parque ou no pequeno apartamento, eles conversavam sobre os mais diversos assuntos: filosofia, astronomia, arte e passagens da Bíblia que falavam sobre recomeços, sem que ele jamais impusesse sua fé a ela. Ravian usava sua percepção aguçada para fazê-la sorrir, contando anedotas lógicas ou apontando as ironias do cotidiano. Pela primeira vez em anos, Julia dava risadas sinceras.</p>
+      <p>O contato físico entre eles cresceu de forma natural e pura. Ravian adorava acariciar os cabelos pretos dela enquanto ela lia, ou simplesmente segurar sua mão quando caminhavam. No processo, ele percebeu que havia se apaixonado profundamente por Julia. Mas ele guardou esse sentimento com o máximo de zelo e respeito, sem pressioná-la. Esse amor e o apego que sentia por ela não se tornaram uma fraqueza, mas sim uma força motriz avassaladora que o impulsionava a continuar lutando para dar a ela a liberdade que merecia.</p>
+      <p>Longe dali, as ações anônimas de Ravian começaram a surtir efeito sobre os irmãos Graves. Pequenos vazamentos de informações, acessos inexplicáveis aos seus podres e a sensação de estarem sendo observados começaram a minar a já instável mente de Andrew e Ashley. Eles estavam confusos, paranoicos, sem entender de onde vinha o ataque.</p>
+      <p>O estopim da crise interna deles aconteceu em uma noite chuvosa. Ashley foi até o local onde guardava seu amuleto — o talismã que representava suas crenças distorcidas e o controle que exercia sobre o irmão. Para o horror absoluto de ambos, o talismã estava partido ao meio, destruído de uma forma fisicamente inexplicável, como se uma força invisível tivesse quebrado o cerne da proteção deles.</p>
+      <p>O pânico se transformou em fúria. Ashley avançou contra Andrew, segurando-o pelo colarinho, os olhos injetados de loucura.</p>
+      <p>— O que você fez, Andrew?! Foi você, não foi?! Você por acaso está tentando me trair! Alguém sabe o que nós fizemos! — ela gritava, a voz histérica ecoando pelas paredes decrépitas.</p>
+      <p>— Eu não fiz nada, Ashley! Eu juro! — Andrew respondeu, com a voz trêmula, o suor frio escorrendo pelo rosto enquanto tentava se defender dos empurrões da irmã. — As coisas estão sumindo... o que a gente escondeu... eu não sei o que está acontecendo! Estamos sendo caçados!</p>
+      <p>A desconfiança mútua, que antes era sufocada pela codependência doentia, agora havia se tornado uma barreira intransponível entre os dois. Eles começaram a discutir violentamente, trocando acusações e gritos na escuridão da casa. A mente brilhante de Ravian, guiada por sua fé e pelo amor por Julia, havia plantado a semente da destruição dos Graves sem disparar um único tiro. O império de terror deles estava prestes a ruir de dentro para fora.</p>
+    </article>
+
+    <article class="chapter" id="cap3">
+      <h2>➕ Capítulo 3: A Caçada Final</h2>
+      <p>O ar daquela noite parecia espesso, carregado com o cheiro sufocante de enxofre e decadência. No porão escuro da residência Graves, Andrew e Ashley cercavam o altar improvisado. Com as mãos trêmulas e sussurros febris, eles conseguiram remendar os pedaços do talismã profano. Quando a última emenda se colou, as chamas das velas ao redor ganharam um tom azulado e doentio. A sombra na parede se distorceu, ganhando vida. A entidade demoníaca a quem eles serviam manifestou-se, projetando uma voz gutural que ecoou diretamente nas mentes dos irmãos. O demônio revelou tudo: as investigações anônimas, as provas coletadas e a identidade do homem que os estava encurralando no escuro. Ravian.</p>
+      <p>Consumidos por uma fúria cega e paranoica, os irmãos perceberam que seu império de segredos estava desmoronando. Para eles, a única forma de parar o investigador era se vingar dele e pôr fim de uma vez por todas nisso. Eles conseguiram saber exatamente onde encontrar Julia.</p>
+      <p>Horas depois, o telefone de Ravian tocou. Ao atender, a voz estridente e psicótica de Ashley invadiu a linha, acompanhada pelo som abafado dos gemidos de pânico de Julia ao fundo. Ashley exigiu que ele fosse até o antigo casarão abandonado na colina, sozinho, ou Julia morreria. Ravian manteve a voz firme, sua mente analítica calculando cada palavra para não demonstrar o pânico que ameaçava paralisá-lo, mas o peso da situação foi demais. Uma única lágrima de puro desespero desceu por sua bochecha direita.</p>
+      <p>Assim que a ligação caiu, Ravian desabou de joelhos. Ele dobrou o corpo e orou a Deus com toda a força de sua alma, clamando por socorro, sabedoria e proteção para a vida da mulher que amava. Enquanto orava, uma paz inexplicável e uma aura de calmaria preencheram o quarto. Seus olhos se abriram e focaram na escrivaninha. O vento que entrava pela janela havia folheado sua Bíblia, deixando-a aberta exatamente em uma passagem específica. Ravian aproximou-se e leu as palavras sagradas. Uma determinação de ferro tomou conta de seu ser. Sabendo que acionar a polícia tradicional causaria uma reação violenta dos irmãos e colocaria a vida de Julia em risco imediato, ele decidiu enfrentá-los sozinho, confiando na justiça divina e em seu próprio intelecto.</p>
+      <p>Quando Ravian cruzou as portas do casarão abandonado, o cenário era macabro. Julia estava amarrada no centro de um círculo ritualístico desenhado com sangue, com os olhos arregalados de terror. Andrew apontava uma arma para a cabeça dela enquanto as lágrimas escorriam do rosto dela, enquanto Ashley segurava o talismã restaurado, recitando palavras rituais.</p>
+      <p>— Ora, se não é o nosso espião — desdenhou Andrew, com o dedo trêmulo no gatilho.</p>
+      <p>Ravian manteve as mãos visíveis, caminhando com passos calculados.</p>
+      <p>— Eu trouxe o que vocês querem — disse Ravian, a voz fria e linear, embora seus olhos transmitissem um conforto silencioso para Julia. Ele mostrou o arquivo que tinha provas coletadas. — Todas as provas dos seus crimes estão aqui. Eu entrego a vocês para que as destruam. E você, Ashley, faça o ritual para acabar com o vínculo de Julia e me deixe vivo no lugar dela. É a minha única oferta.</p>
+      <p>Ashley sorriu de forma maquiavélica, achando que havia vencido o jogo mental. O plano dos irmãos, na verdade, era aceitar o trato para fazê-lo abaixar a guarda e, em seguida, matar os dois de qualquer maneira. O ritual recomeçou, e a energia escura do talismã começou a sufocar a atmosfera, fazendo Julia tossir e fraquejar. Os irmãos Graves saboreavam o que acreditavam ser a vitória final.</p>
+      <p>No entanto, eles subestimaram a mente de Ravian. Enquanto Ashley gritava as palavras finais do ritual, Ravian fechou os olhos e começou a orar em silêncio absoluto. Com precisão milimétrica, ele moveu os dedos dentro do bolso e deixou cair um pequeno frasco de água purificada e sal mineralizado que havia preparado, misturando-se discretamente com os componentes do círculo de sangue no chão.</p>
+      <p>A reação foi instantânea. A energia escura do ritual colidiu com a barreira invisível da oração e da sabotagem química. O ar estalou com uma força violenta. O ritual desapareceu e falhou miseravelmente. No mesmo instante, o talismã nas mãos de Ashley explodiu em dezenas de pedaços, quebrando-se totalmente, sem qualquer chance de restauração. A força do impacto desfez as amarras de Julia, que caiu no chão, livre e tossindo, mas salva.</p>
+      <p>Ao verem o artefato destruído e o plano arruinado, o pânico tomou conta dos irmãos. Andrew, em um surto de fúria pura, apontou a arma na direção de Ravian para atirar. Em vez de fugir ou contra-atacar fisicamente, Ravian correu até Julia. Ele a envolveu em um abraço terno, apertado e silencioso, usando o próprio corpo como escudo. Ele olhou diretamente nos olhos de Andrew e Ashley, exibindo um sorriso calmo e vitorioso. Com a voz ecoando com autoridade, ele proferiu o texto bíblico:</p>
+      <p>— O Senhor é o meu pastor; nada me faltará.</p>
+      <p>Andrew puxou o gatilho. Mas a arma falhou com um estalo seco. O mecanismo havia travado devido à poeira e ao desgaste do próprio casarão.</p>
+      <p>Antes que Andrew pudesse tentar novamente, a porta principal do casarão foi arrombada com uma força brutal por uma equipe tática de elite. Ravian havia enviado as coordenadas e o alerta planejado para as autoridades antes de entrar. Os irmãos Graves olharam para a porta, chocados. No mesmo milésimo de segundo, o som ensurdecedor de um disparo de rifle de precisão ecoou de fora do vidro. O tiro quebrou a janela lateral, atingindo Andrew em cheio na lateral da parte esquerda da cabeça. Ele desabou no chão instantaneamente, sem vida.</p>
+      <p>— Andrew! Não! — Ashley soltou um grito agonizante, um uivo de puro desespero que rasgou as paredes do casarão. Ao ver o irmão morto, a mente dela quebrou por completo. Em um ato de loucura final, ela recolheu a arma travada do chão, destravou-a à força com as mãos ensanguentadas e apontou para a própria cabeça.</p>
+      <p>— Pare, Ashley! Não faça isso! — gritou Ravian, levantando-se rapidamente, enquanto os policiais invadiam a sala gritando para ela soltar a arma. Julia estendeu a mão, horrorizada, querendo impedir mais uma tragédia.</p>
+      <p>Mas era tarde demais para Ashley Graves. Com os olhos injetados de lágrimas e loucura, ela apertou o gatilho. O disparo ecoou. O corpo de Ashley caiu ao lado do de seu irmão. O silêncio que se seguiu no casarão era sepulcral.</p>
+      <p>Julia e Ravian não comemoraram. Não havia espaço para alegria ali. Ao verem os corpos estendidos, o peso da tragédia humana os atingiu. A justiça havia sido feita, mas o preço fora terrível. Julia desabou no choro, escondendo o rosto no peito de Ravian, tomada por uma mistura de pena e remorso.</p>
+      <p>— Apesar de tudo o que eles nos fizeram... eles não mereciam terminar assim, Ravian... — sussurrou Julia entre os soluços.</p>
+      <p>Ravian a abraçou apertado, acariciando seus cabelos, com os olhos marejados de tristeza profunda pela perda daquelas vidas.</p>
+      <p>— Que Deus tenha misericórdia das almas deles — respondeu Ravian, a voz baixa e piedosa. — Porque, infelizmente, a alma deles está perdida para sempre por conta do caminho que escolheram no ocultismo. Eles se entregaram às trevas, e as trevas cobram o seu preço.</p>
+      <p>Nos dias e semanas que se seguiram, o mundo exterior virou de cabeça para baixo. As investigações detalhadas de Ravian foram finalmente expostas ao público. Grandes reportagens e notícias saíram nos jornais nacionais. A verdade absoluta sobre a morte dos pais dos irmãos Graves veio à tona, assim como o destino trágico de Nina e os inúmeros crimes cometidos pela dupla durante a quarentena. A revelação de tamanha negligência e corrupção nos arquivos policiais anteriores forçou uma grande reforma no sistema de justiça da região, diminuindo drasticamente a corrupção institucional e trazendo uma nova era de ordem.</p>
+      <p>Aos poucos, a vida voltou ao normal. Julia e Ravian continuaram juntos, construindo uma rotina simples, calma e segura. O processo de cura de Julia era lento, mas constante. Sob os cuidados e o amor paciente de Ravian, ela reaprendeu a viver. Eles se divertiam cozinhando juntos, aprendendo coisas novas, lendo e sorrindo sem o medo que antes os perseguia.</p>
+      <p>Um dia, em uma tarde ensolarada, eles visitaram o cemitério local. Julia caminhou até o túmulo de Nina, deixando um lindo buquê de flores frescas e derramando lágrimas de saudade, mas agora com o coração em paz. Depois, com passos calmos, ela e Ravian caminharam até a ala mais afastada, parando diante das lápides de Andrew e Ashley. Julia respirou fundo, segurando a mão de Ravian.</p>
+      <p>— Apesar de toda a dor que vocês causaram... eu perdoo vocês. Descansem em paz — disse ela, deixando uma pequena flor branca sobre a grama. O perdão era o selo final que ela precisava para se libertar totalmente das correntes do passado.</p>
+      <p>No final daquela mesma semana, Ravian e Julia subiram a colina do parque para assistir ao pôr do sol. O céu estava pintado em tons de dourado, rosa e violeta. Eles estavam abraçados, sentindo a brisa suave do fim de tarde.</p>
+      <p>Ao se olharem, o silêncio entre eles transmitia uma cumplicidade profunda. Sorrindo com ternura, Ravian baixou a mão lentamente e tocou, de forma extremamente suave e carinhosa, a barriga de Julia. A narrativa não explicava o motivo daquele gesto, mas ao sentir o toque de Ravian, Julia olhou para baixo, tímida, com as bochechas coradas, mas exibindo o sorriso mais radiante e feliz de sua vida. Ela voltou a olhar para ele. Ravian, com o mesmo olhar apaixonado e protetor, aproximou seu rosto do dela. Seus lábios se aproximaram lentamente e, três segundos antes de se tocarem, a luz dourada do sol poente projetou a silhueta dos dois contra a grama, mostrando apenas a sombra suave de um beijo terno e definitivo. A tela escureceu, trazendo o encerramento da jornada.</p>
+      
+      <div class="verse">
+        "O amor é paciente, o amor é bondoso. Não inveja, não se vangloria, não se orgulha. Não maltrata, não procura seus interesses, não se ira facilmente, não guarda rancor. O amor não se alegra com a injustiça, mas se alegra com a verdade. Tudo sofre, tudo crê, tudo espera, tudo suporta."
+        <cite>— 1 Coríntios 13:4-7</cite>
+      </div>
+    </article>
+
+    <footer id="credits">
+      <p>📖 <strong>Fim</strong> 🌿🎓🔍💙💛</p>
+      <div class="authorship">
+        <p>🎮 <strong>Autoria & Direitos Reservados:</strong></p>
+        <p>Esta obra é baseada no universo e na narrativa original do jogo <em>"The Coffin of Andy and Ashley"</em>. Todos os direitos de propriedade intelectual, personagens e lore pertencem aos criadores/desenvolvedores originais. Este e-book é uma adaptação literária não oficial, criada com fins de homenagem, expansão narrativa e experiência de leitura aprimorada.</p>
+        <p>© 2026 - Adaptação E-book Interativa | Preservando a essência, fé e justiça da história original.</p>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const body = document.body;
+      const progressBar = document.getElementById('progress-bar');
+      const themeBtn = document.getElementById('theme-btn');
+      const tocBtn = document.getElementById('toc-btn');
+      const fontBtn = document.getElementById('font-btn');
+      const tocPanel = document.querySelector('.toc-panel');
+
+      // Temas
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      body.setAttribute('data-theme', savedTheme);
+      themeBtn.textContent = savedTheme === 'dark' ? '☀️ Claro' : '🌙 Escuro';
+
+      themeBtn.addEventListener('click', () => {
+        const current = body.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        body.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+        themeBtn.textContent = next === 'dark' ? '☀️ Claro' : '🌙 Escuro';
+      });
+
+      // Índice
+      tocBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        tocPanel.classList.toggle('active');
+      });
+      document.addEventListener('click', (e) => {
+        if (!tocPanel.contains(e.target) && e.target !== tocBtn) {
+          tocPanel.classList.remove('active');
+        }
+      });
+
+      document.querySelectorAll('.toc-panel a').forEach(link => {
+        link.addEventListener('click', e => {
+          e.preventDefault();
+          const target = document.querySelector(link.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth' });
+            tocPanel.classList.remove('active');
+          }
+        });
+      });
+
+      // Tamanho da Fonte
+      const fontSizes = [16, 18, 20, 22];
+      let fontIndex = fontSizes.indexOf(parseInt(localStorage.getItem('fontSize') || '18'));
+      if (fontIndex === -1) fontIndex = 1;
+      body.style.setProperty('--font-size', `${fontSizes[fontIndex]}px`);
+      fontBtn.textContent = `🔤 ${fontSizes[fontIndex]}px`;
+
+      fontBtn.addEventListener('click', () => {
+        fontIndex = (fontIndex + 1) % fontSizes.length;
+        body.style.setProperty('--font-size', `${fontSizes[fontIndex]}px`);
+        localStorage.setItem('fontSize', fontSizes[fontIndex]);
+        fontBtn.textContent = `🔤 ${fontSizes[fontIndex]}px`;
+      });
+
+      // Barra de Progresso
+      window.addEventListener('scroll', () => {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = (scrollTop / docHeight) * 100;
+        progressBar.style.width = `${progress}%`;
+      });
+    });
+  </script>
+</body>
+</html>
